@@ -19,7 +19,7 @@ app.post('/api/chat', async (req, res) => {
         console.log(`Menerima pesan dari frontend: "${message}"`);
 
         // --- PANGGILAN API GEMINI SUNGGUHAN ---
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         console.log('Memanggil API Gemini...');
 
         const result = await model.generateContent(message);
