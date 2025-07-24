@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Integrasi AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Demo Pipeline Frontend-Backend-AI</h1>
+        <p>Kirim pesan ke backend, dan backend akan "berbicara" dengan AI.</p>
+        
+        <div id="response-area" class="response-area">
+            Menunggu respons dari AI...
+        </div>
+
+        <form id="chat-form">
+            <input 
+                type="text" 
+                id="prompt-input" 
+                placeholder="Ketik pesan Anda di sini..."
+                autocomplete="off"
+                required
+            >
+            <button type="submit" id="submit-button">Kirim</button>
+        </form>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
