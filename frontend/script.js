@@ -1,61 +1,121 @@
-// Menunggu sampai seluruh halaman HTML selesai dimuat
 document.addEventListener('DOMContentLoaded', () => {
-    // Ambil elemen-elemen yang kita butuhkan dari HTML
-    const chatForm = document.getElementById('chat-form');
-    const promptInput = document.getElementById('prompt-input');
-    const submitButton = document.getElementById('submit-button');
-    const responseArea = document.getElementById('response-area');
-
-    // Alamat API Backend kita
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatMessages = document.getElementById('chatMessages');
+    const typingIndicator = document.getElementById('typingIndicator');
+    
     const API_URL = 'http://localhost:3001/api/chat';
-
-    // Tambahkan event listener saat form di-submit
+    
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    
+    // Send message on Enter (but allow Shift+Enter for new line)
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Add message to chat
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <span>${isUser ? 'U' : 'AI'}</span>
+            </div>
+            <div class="message-content">
+                ${content}
+            </div>
+        `;
+        
+        // Remove welcome message if it exists
+        const welcomeMessage = chatMessages.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.remove();
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Show/hide typing indicator
+    function showTyping(show = true) {
+        if (show) {
+            typingIndicator.classList.add('show');
+            chatMessages.appendChild(typingIndicator);
+        } else {
+            typingIndicator.classList.remove('show');
+            if (typingIndicator.parentNode) {
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            }
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Handle form submission
     chatForm.addEventListener('submit', async (event) => {
-        // Mencegah halaman refresh saat form dikirim
         event.preventDefault();
-
-        const message = promptInput.value;
-        if (!message) return; // Jangan lakukan apa-apa jika input kosong
-
-        // === KELOLA STATE PADA UI (LANGKAH PENTING!) ===
-        // 1. Nonaktifkan tombol dan input agar user tidak mengirim pesan ganda
-        submitButton.disabled = true;
-        submitButton.textContent = 'Memproses...';
-        responseArea.textContent = 'Menghubungi AI...';
-        // =============================================
-
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, true);
+        
+        // Clear input and reset height
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        
+        // Disable input and show typing
+        sendButton.disabled = true;
+        messageInput.disabled = true;
+        showTyping(true);
+        
         try {
-            // Lakukan panggilan API ke backend menggunakan fetch
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: message }), // Kirim pesan dalam format JSON
+                body: JSON.stringify({ message: message }),
             });
-
-            // Jika respons dari server tidak OK (bukan status 2xx)
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
-            // Ambil data JSON dari respons
+            
             const data = await response.json();
-
-            // Tampilkan balasan dari AI di response area
-            responseArea.textContent = data.reply;
-
+            
+            // Hide typing and add AI response
+            showTyping(false);
+            
+            // Add a small delay for better UX
+            setTimeout(() => {
+                addMessage(data.reply, false);
+            }, 300);
+            
         } catch (error) {
-            // Tangani jika terjadi error koneksi atau error dari server
-            console.error('Terjadi kesalahan:', error);
-            responseArea.textContent = 'Maaf, terjadi kesalahan saat menghubungi server.';
+            console.error('Error:', error);
+            showTyping(false);
+            
+            setTimeout(() => {
+                addMessage('Maaf, terjadi kesalahan saat menghubungi server. Silakan coba lagi.', false);
+            }, 300);
         } finally {
-            // === KEMBALIKAN STATE UI KE SEMULA ===
-            // Bagian ini akan selalu dijalankan, baik berhasil maupun gagal
-            submitButton.disabled = false;
-            submitButton.textContent = 'Kirim';
-            promptInput.value = ''; // Kosongkan input
-            // =====================================
+            // Re-enable input
+            sendButton.disabled = false;
+            messageInput.disabled = false;
+            messageInput.focus();
         }
     });
+    
+    // Focus on input when page loads
+    messageInput.focus();
 });

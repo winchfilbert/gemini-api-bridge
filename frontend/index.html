@@ -7,24 +7,51 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Demo Pipeline Frontend-Backend-AI</h1>
-        <p>Kirim pesan ke backend, dan backend akan "berbicara" dengan AI.</p>
-        
-        <div id="response-area" class="response-area">
-            Menunggu respons dari AI...
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="status-indicator"></div>
+            <h1>Chat AI Assistant</h1>
+            <p>Powered by Gemini AI - Siap membantu Anda</p>
         </div>
-
-        <form id="chat-form">
-            <input 
-                type="text" 
-                id="prompt-input" 
-                placeholder="Ketik pesan Anda di sini..."
-                autocomplete="off"
-                required
-            >
-            <button type="submit" id="submit-button">Kirim</button>
-        </form>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h3>👋 Selamat datang!</h3>
+                <p>Mulai percakapan dengan mengetik pesan di bawah ini.</p>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="message-avatar">
+                <span>AI</span>
+            </div>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span style="color: #6c757d; font-size: 14px; margin-left: 8px;">AI sedang mengetik...</span>
+        </div>
+        
+        <div class="chat-input-container">
+            <form class="chat-input-form" id="chatForm">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="Ketik pesan Anda di sini..." 
+                        rows="1"
+                        autocomplete="off"
+                        required
+                    ></textarea>
+                </div>
+                <button type="submit" class="send-button" id="sendButton">
+                    <svg class="send-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+                    </svg>
+                </button>
+            </form>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
